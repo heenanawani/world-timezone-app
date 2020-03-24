@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="80e982e5-3b86-41fc-b1c3-8f1e181b941d">
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3a6df56f-f5c8-4972-97b3-7b0b80313086" basePath="/heena" >
+		<http:request-connection host="api.facebook.com/restserver.php" />
+	</http:request-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="5c666552-6721-4dd3-b386-91a91595c34f" >
+		<wsc:connection wsdlLocation="http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL" service="CountryInfoService" port="CountryInfoServiceSoap" address="http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso" />
+	</wsc:config>
+	<flow name="Copy_of_assignmentq4Flow" doc:id="5655b85d-3fda-4652-b222-accc08a501ee" initialState="started" >
+		<http:listener doc:name="Listener" doc:id="6d737649-86e6-4e0c-8206-137e4f74dfa6" config-ref="HTTP_Listener_config" path="/cicd" />
+		<wsc:consume doc:name="Consume" doc:id="9a98564d-7b6a-4a2c-85b9-e8c4b1b23943" config-ref="Web_Service_Consumer_Config" operation="ListOfCountryNamesGroupedByContinent"/>
+		<ee:transform doc:name="Transform Message" doc:id="b3c55afb-d701-4a09-967f-ae9304f59c5f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f8406391-4007-4f85-86f1-95c299f4820d" message="#[payload]" />
+	</flow>
+</mule>
